@@ -15,7 +15,18 @@ public class Question {
     private String description;
 
     @OneToMany
+    @JoinColumn(name = "question_id", referencedColumnName = "id")
     private List<PossibleAnswer> possibleAnswers;
+
+    public Question() {
+    }
+
+    public Question(long id, String question, String description, List<PossibleAnswer> possibleAnswers) {
+        this.id = id;
+        this.question = question;
+        this.description = description;
+        this.possibleAnswers = possibleAnswers;
+    }
 
     public long getId() {
         return id;

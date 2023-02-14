@@ -25,8 +25,8 @@ import java.util.List;
 @Component
 public class BotService extends TelegramLongPollingBot {
 
-    public static final String YES_BUTTON = "YES_BUTTON";
-    public static final String NO_BUTTON = "NO_BUTTON";
+//    public static final String YES_BUTTON = "YES_BUTTON";
+//    public static final String NO_BUTTON = "NO_BUTTON";
     public static final String TRUE = "TRUE";
     public static final String FALSE = "FALSE";
 
@@ -40,8 +40,17 @@ public class BotService extends TelegramLongPollingBot {
     private static final Logger logger = LoggerFactory.getLogger(BotService.class);
     private static final String HELP_MESSAGE = "Выбери команду котораятебе подходить:\n\n" +
             "/start - начало работы бота \n\n" +
-            "/yes - да\n\n" +
-            "/no - нет";
+            "/go - получить вопрос";
+
+    private static final String HELP_MESSAGE_ADMIN = "Выбери команду котораятебе подходить:\n\n" +
+            "/start - начало работы бота \n\n" +
+            "/go - получить вопрос\n\n" +
+            "/send - отправить сообщение всем пользователям бота\n\n" +
+            "/add_question - добавить новый вопрос\n\n" +
+            " \uD83D\uDC47⬇️Pattern⬇️\uD83D\uDC47";
+
+    private static final String ADD_QUESTION_PATTERN = "/add_question {\"question\":\" \",\"description\":\" \",\"possibleAnswers\":[{\"correct\":true,\"answer\":{\"answer\":\" \"}},{\"correct\":false,\"answer\":{\"answer\":\" \"}},{\"correct\":false,\"answer\":{\"answer\":\" \"}}]}";
+
 
     public BotService(BotConfig config, IUserService userService, MessageUtil messageUtil,
                       IQuestionService questionService) {
@@ -98,7 +107,7 @@ public class BotService extends TelegramLongPollingBot {
             ///////////
 
 
-            //Рассылка всем пользователям
+            /////Рассылка всем пользователям
             if (text.contains("/send") && !sender.getRole().equals(Role.USER)){
 
                 String textToSend = text.substring(text.indexOf(" "));
@@ -114,9 +123,28 @@ public class BotService extends TelegramLongPollingBot {
                 return;
             }
 
+            /////////////////
 
 
-            switch (text) {
+            /////Создаем вопрос
+            if (text.contains("/add_question") && !sender.getRole().equals(Role.USER)) {
+
+                String textObject = text.substring(text.indexOf(" "));
+
+                Question question = this.questionService.create(textObject);
+                if (question == null){
+                    this.sendMessage(chatId, "Не удалось создать Question");
+                } else {
+                SendMessage sendMessage = this.messageUtil.sendMessageNewQuestion(chatId, question);
+                this.executeMessage(sendMessage, chatId);
+                }
+                    return;
+            }
+
+            /////////////////////////
+
+
+                switch (text) {
                 case "/start":
 //                    sendMessageStart(chatId, "Hello " + firstName + "\n Приветствие и описание...");
 
@@ -134,8 +162,9 @@ public class BotService extends TelegramLongPollingBot {
 
 
                 case "/go":
+                    case "❔Question":
 
-                    var messageForQuestion = this.messageUtil.sendMessageForQuestion(chatId);
+                        var messageForQuestion = this.messageUtil.sendMessageForQuestion(chatId);
                     this.executeMessage(messageForQuestion, chatId);
 
                     break;
@@ -145,6 +174,16 @@ public class BotService extends TelegramLongPollingBot {
 
 
                 case "/help":
+
+                    User user = userService.read(chatId);
+
+                    if (user.getRole().equals(Role.BOSS) || user.getRole().equals(Role.ADMIN)){
+
+                        sendMessage(chatId, HELP_MESSAGE_ADMIN);
+                        sendMessage(chatId, ADD_QUESTION_PATTERN);
+
+                        break;
+                    }
 
                     sendMessage(chatId, HELP_MESSAGE);
 
@@ -162,16 +201,12 @@ public class BotService extends TelegramLongPollingBot {
         //если пользовател ответил нажав на кнопку
         else if(update.hasCallbackQuery()){  //если пользовател ответил нажав на кнопку
 
-            String textMessage = update.getMessage().getText();
-
-            String textAnswer = update.getCallbackQuery().getMessage().getText();
+            String textMessage = update.getCallbackQuery().getMessage().getText();
 
 
             String data = update.getCallbackQuery().getData();
             Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
-
-            //TODO как бот будет понимать какой вариант правильный?
 
 
 //            switch (data){
@@ -189,7 +224,7 @@ public class BotService extends TelegramLongPollingBot {
 
                 if (data.contains(TRUE)) {
 
-                    String response = textAnswer + " \n\nRight";
+                    String response = " \n\nRight\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
 
                     EditMessageText editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
@@ -199,8 +234,8 @@ public class BotService extends TelegramLongPollingBot {
 
                 } else if (data.contains(FALSE)) {
 
-                    String id = data.substring(data.indexOf(" "));
-                    String response = textAnswer + " \n\nWrong";
+                    String id = data.substring(data.indexOf(" ") + 1);
+                    String response = " \n\nWrong\uD83E\uDD14";
 
                     EditMessageText editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
@@ -210,7 +245,7 @@ public class BotService extends TelegramLongPollingBot {
                     try {
                         Question question = this.questionService.get(Long.parseLong(id));
 
-                        this.sendMessage(chatId, question.getDescription());
+                        this.sendMessage(chatId, "\uD83E\uDDD0 " + question.getDescription());
 
                     } catch (NumberFormatException e) {
                         logger.error("Не удалось получить ид Question: {}", e.getMessage());
@@ -220,10 +255,7 @@ public class BotService extends TelegramLongPollingBot {
 
                 }
 
-
-
         }
-
 
     }
 

@@ -34,7 +34,7 @@ public class MessageUtil {
 
         Long chatId = userMessage.getChatId();
         String firstName = userMessage.getChat().getFirstName();
-        String textToSend = "Hello " + firstName + "\n Приветствие и описание...";
+        String textToSend = "Hello " + firstName + "!\n Здесь должно быть приветствие и описание...";
 
 
         SendMessage message = new SendMessage();
@@ -73,12 +73,12 @@ public class MessageUtil {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
 
         KeyboardRow row = new KeyboardRow();//первый ряд кнопак
-        row.add("\uD83E\uDD14Question");
-        row.add("☑️Test");
+        row.add("❔Question");
+//        row.add("☑️Test");
 
         KeyboardRow row2 = new KeyboardRow();//первый ряд кнопак
         row2.add("ℹ️Help");
-        row2.add("⚙️Setting");
+//        row2.add("⚙️Setting");
 
         keyboardRows.add(row);//добавили ряд кнопока в список кнопак
         keyboardRows.add(row2);
@@ -162,6 +162,44 @@ public class MessageUtil {
 
     }
 
+    public SendMessage sendMessageNewQuestion(long chatId, Question question){
+
+        List<PossibleAnswer> possibleAnswers = question.getPossibleAnswers();
+
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(question.getQuestion());
+
+
+        InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();//Делаем кнопки под сообщением
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+
+        ///////////////// Создаем кнопки
+
+        for (PossibleAnswer possibleAnswer : possibleAnswers) {
+
+            List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+
+            InlineKeyboardButton possible = new InlineKeyboardButton();
+            possible.setText( possibleAnswer.getAnswer().getAnswer());
+            possible.setCallbackData(String.valueOf(possibleAnswer.isCorrect()).toUpperCase() +
+                    " " + question.getId());
+
+            rowInLine.add(possible);
+
+            rowsInLine.add(rowInLine);
+        }
+
+
+        ////////////////////
+
+        inlineMarkup.setKeyboard(rowsInLine);
+
+        message.setReplyMarkup(inlineMarkup);
+
+        return message;
+
+    }
 
     public EditMessageText changeMessage(long chatId, String text, Integer messageId){//изменяет сообщение
 

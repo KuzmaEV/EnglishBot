@@ -14,6 +14,14 @@ public class Answer {
 
     private String answer;
 
+    public Answer() {
+    }
+
+    public Answer(long id, String answer) {
+        this.id = id;
+        this.answer = answer;
+    }
+
     public long getId() {
         return id;
     }

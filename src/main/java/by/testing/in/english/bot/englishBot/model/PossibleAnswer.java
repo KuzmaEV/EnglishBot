@@ -16,6 +16,15 @@ public class PossibleAnswer {
     @ManyToOne
     private Answer answer;
 
+    public PossibleAnswer() {
+    }
+
+    public PossibleAnswer(long id, boolean isCorrect, Answer answer) {
+        this.id = id;
+        this.isCorrect = isCorrect;
+        this.answer = answer;
+    }
+
     public long getId() {
         return id;
     }
