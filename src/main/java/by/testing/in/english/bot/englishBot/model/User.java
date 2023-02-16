@@ -29,6 +29,9 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
+    @Enumerated(value = EnumType.STRING)
+    private Level level;
+
     public Long getChatId() {
         return chatId;
     }
@@ -85,6 +88,14 @@ public class User {
         this.status = status;
     }
 
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -95,6 +106,7 @@ public class User {
                 ", registeredAt=" + registeredAt +
                 ", role=" + role +
                 ", status=" + status +
+                ", level=" + level +
                 '}';
     }
 }

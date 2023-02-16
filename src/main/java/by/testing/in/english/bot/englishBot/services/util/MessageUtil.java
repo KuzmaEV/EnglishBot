@@ -1,5 +1,6 @@
 package by.testing.in.english.bot.englishBot.services.util;
 
+import by.testing.in.english.bot.englishBot.model.Level;
 import by.testing.in.english.bot.englishBot.model.PossibleAnswer;
 import by.testing.in.english.bot.englishBot.model.Question;
 import by.testing.in.english.bot.englishBot.services.api.IQuestionService;
@@ -73,12 +74,12 @@ public class MessageUtil {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
 
         KeyboardRow row = new KeyboardRow();//первый ряд кнопак
-        row.add("❔Question");
+        row.add("❔Question❓");
 //        row.add("☑️Test");
 
         KeyboardRow row2 = new KeyboardRow();//первый ряд кнопак
+        row2.add("⚙️Setting");
         row2.add("ℹ️Help");
-//        row2.add("⚙️Setting");
 
         keyboardRows.add(row);//добавили ряд кнопока в список кнопак
         keyboardRows.add(row2);
@@ -99,7 +100,9 @@ public class MessageUtil {
 
     public SendMessage sendMessageForQuestion(long chatId){
 
-        Question question = this.questionService.getRandom();
+        Level level = this.userService.get(chatId).getLevel();
+
+        Question question = this.questionService.getRandom(level);
         List<PossibleAnswer> possibleAnswers = question.getPossibleAnswers();
 
         SendMessage message = new SendMessage();
@@ -161,6 +164,90 @@ public class MessageUtil {
         return message;
 
     }
+
+
+    /////////////
+
+
+    public SendMessage sendSetting(long chatId){
+
+        Level level = this.userService.get(chatId).getLevel();
+
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("You have set the level: " + level.toString() +
+                "\nChoose the right level:");
+
+
+        InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();//Делаем кнопки под сообщением
+        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
+
+//        Level[] values = Level.values();
+
+
+//        for (Level value : values) {
+
+            List<InlineKeyboardButton> rowInLine = new ArrayList<>();
+
+            InlineKeyboardButton property = new InlineKeyboardButton();
+            InlineKeyboardButton property2 = new InlineKeyboardButton();
+
+            property.setText(Level.A1 + "(Elementary)");
+            property.setCallbackData(Level.A1.toString());
+
+            property2.setText(Level.A2 + "(Elementary)");
+            property2.setCallbackData(Level.A2.toString());
+
+            rowInLine.add(property);
+            rowInLine.add(property2);
+
+            rowsInLine.add(rowInLine);
+//        }
+
+        List<InlineKeyboardButton> rowInLine2 = new ArrayList<>();
+
+        InlineKeyboardButton propertyB = new InlineKeyboardButton();
+        InlineKeyboardButton propertyB2 = new InlineKeyboardButton();
+
+        propertyB.setText(Level.B1 + "(Intermediate)");
+        propertyB.setCallbackData(Level.B1.toString());
+
+        propertyB2.setText(Level.B2 + "(Intermediate)");
+        propertyB2.setCallbackData(Level.B2.toString());
+
+        rowInLine2.add(propertyB);
+        rowInLine2.add(propertyB2);
+
+        rowsInLine.add(rowInLine2);
+
+
+        List<InlineKeyboardButton> rowInLine3 = new ArrayList<>();
+
+        InlineKeyboardButton propertyC = new InlineKeyboardButton();
+        InlineKeyboardButton propertyC2 = new InlineKeyboardButton();
+
+        propertyC.setText(Level.C1 + "(Advanced)");
+        propertyC.setCallbackData(Level.C1.toString());
+
+        propertyC2.setText(Level.C2 + "(Advanced)");
+        propertyC2.setCallbackData(Level.C2.toString());
+
+        rowInLine3.add(propertyC);
+        rowInLine3.add(propertyC2);
+
+        rowsInLine.add(rowInLine3);
+
+
+        inlineMarkup.setKeyboard(rowsInLine);
+
+        message.setReplyMarkup(inlineMarkup);
+
+        return message;
+
+    }
+
+
+    ///////////
 
     public SendMessage sendMessageNewQuestion(long chatId, Question question){
 

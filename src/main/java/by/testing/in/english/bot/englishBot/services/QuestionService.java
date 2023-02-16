@@ -1,5 +1,6 @@
 package by.testing.in.english.bot.englishBot.services;
 
+import by.testing.in.english.bot.englishBot.model.Level;
 import by.testing.in.english.bot.englishBot.model.PossibleAnswer;
 import by.testing.in.english.bot.englishBot.model.Question;
 import by.testing.in.english.bot.englishBot.repositories.QuestionRepository;
@@ -71,14 +72,19 @@ public class QuestionService implements IQuestionService {
 
 
     @Override
-    public Question getRandom() {
+    public Question getRandom(Level level) {
 
-        long count = repository.count();
+        int count = repository.countByLevel(level);
+        if (count == 0){
+            throw new IllegalArgumentException("Вопроса такого уровня еще нету в базе");
+        }
+
+
         int randomNumber = (int) (Math.random() * count);
 
         Pageable pageable = PageRequest.of(randomNumber, 1);
 
-        Page<Question> page = repository.findAll(pageable);
+        Page<Question> page = repository.findAllByLevel(pageable, level);
 
 
         return page.getContent().get(0);

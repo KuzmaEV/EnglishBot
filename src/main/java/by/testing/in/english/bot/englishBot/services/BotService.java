@@ -2,10 +2,7 @@ package by.testing.in.english.bot.englishBot.services;
 
 
 import by.testing.in.english.bot.englishBot.config.BotConfig;
-import by.testing.in.english.bot.englishBot.model.Question;
-import by.testing.in.english.bot.englishBot.model.Role;
-import by.testing.in.english.bot.englishBot.model.Status;
-import by.testing.in.english.bot.englishBot.model.User;
+import by.testing.in.english.bot.englishBot.model.*;
 import by.testing.in.english.bot.englishBot.services.api.IQuestionService;
 import by.testing.in.english.bot.englishBot.services.api.IUserService;
 import by.testing.in.english.bot.englishBot.services.util.MessageUtil;
@@ -25,8 +22,6 @@ import java.util.List;
 @Component
 public class BotService extends TelegramLongPollingBot {
 
-//    public static final String YES_BUTTON = "YES_BUTTON";
-//    public static final String NO_BUTTON = "NO_BUTTON";
     public static final String TRUE = "TRUE";
     public static final String FALSE = "FALSE";
 
@@ -38,18 +33,24 @@ public class BotService extends TelegramLongPollingBot {
 
 
     private static final Logger logger = LoggerFactory.getLogger(BotService.class);
-    private static final String HELP_MESSAGE = "Выбери команду котораятебе подходить:\n\n" +
-            "/start - начало работы бота \n\n" +
-            "/go - получить вопрос";
-
-    private static final String HELP_MESSAGE_ADMIN = "Выбери команду котораятебе подходить:\n\n" +
+    private static final String HELP_MESSAGE = "Выбери команду которая тебе подходить:\n\n" +
             "/start - начало работы бота \n\n" +
             "/go - получить вопрос\n\n" +
+            "/setting - настроить уровень сложгости теста";
+
+    private static final String HELP_MESSAGE_ADMIN = "Выбери команду которая тебе подходить:\n\n" +
+            "/start - начало работы бота \n\n" +
+            "/go - получить вопрос\n\n" +
+            "/setting - настроить уровень сложгости теста\n\n" +
             "/send - отправить сообщение всем пользователям бота\n\n" +
             "/add_question - добавить новый вопрос\n\n" +
             " \uD83D\uDC47⬇️Pattern⬇️\uD83D\uDC47";
 
-    private static final String ADD_QUESTION_PATTERN = "/add_question {\"question\":\" \",\"description\":\" \",\"possibleAnswers\":[{\"correct\":true,\"answer\":{\"answer\":\" \"}},{\"correct\":false,\"answer\":{\"answer\":\" \"}},{\"correct\":false,\"answer\":{\"answer\":\" \"}}]}";
+    private static final String ADD_QUESTION_PATTERN = "/add_question {\"question\":\" \",\"description\":\" \"," +
+            "\"level\":\" \",\"possibleAnswers\":" +
+            "[{\"correct\":true,\"answer\":{\"answer\":\" \"}}," +
+            "{\"correct\":false,\"answer\":{\"answer\":\" \"}}," +
+            "{\"correct\":false,\"answer\":{\"answer\":\" \"}}]}";
 
 
     public BotService(BotConfig config, IUserService userService, MessageUtil messageUtil,
@@ -88,7 +89,7 @@ public class BotService extends TelegramLongPollingBot {
             if (!text.equals("/start")) {
 
                 try {
-                sender = userService.read(chatId);
+                sender = userService.get(chatId);
             } catch (Exception e) {
 
                     sendMessage(chatId,
@@ -112,7 +113,7 @@ public class BotService extends TelegramLongPollingBot {
 
                 String textToSend = text.substring(text.indexOf(" "));
 
-                List<User> userList = userService.read();
+                List<User> userList = userService.get();
 
                 for (User user : userList) {
                     if (user.getStatus().equals(Status.ACTIVATED)){
@@ -162,7 +163,7 @@ public class BotService extends TelegramLongPollingBot {
 
 
                 case "/go":
-                    case "❔Question":
+                    case "❔Question❓":
 
                         var messageForQuestion = this.messageUtil.sendMessageForQuestion(chatId);
                     this.executeMessage(messageForQuestion, chatId);
@@ -173,9 +174,24 @@ public class BotService extends TelegramLongPollingBot {
                     //////////////////////
 
 
-                case "/help":
+                    case "/setting":
+                    case "⚙️Setting":
 
-                    User user = userService.read(chatId);
+
+                        SendMessage sendSetting = this.messageUtil.sendSetting(chatId);
+                        this.executeMessage(sendSetting, chatId);
+
+
+                        break;
+
+
+                    ///////////////////
+
+
+                case "/help":
+                    case "ℹ️Help":
+
+                    User user = userService.get(chatId);
 
                     if (user.getRole().equals(Role.BOSS) || user.getRole().equals(Role.ADMIN)){
 
@@ -202,31 +218,23 @@ public class BotService extends TelegramLongPollingBot {
         else if(update.hasCallbackQuery()){  //если пользовател ответил нажав на кнопку
 
             String textMessage = update.getCallbackQuery().getMessage().getText();
+            String userName = update.getCallbackQuery().getFrom().getUserName();
 
 
             String data = update.getCallbackQuery().getData();
             Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
+            User user;
+            String response;
+            String userLevel;
+            EditMessageText editMessageText;
 
-//            switch (data){
+            if (data.contains(TRUE)) {
 
-//                case YES_BUTTON:
-//                    sendMessage(chatId, "Я тоже тебя люблю \uD83D\uDE18");
-//                    break;
+                    response = " \n\nRight\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
 
-//                case NO_BUTTON:
-//                    changeMessage(chatId, "Поцему??\uD83D\uDE22", messageId);//изменяет сообщение, не создает новое
-//                    break;
-//                default:
-//                    break;
-//            }
-
-                if (data.contains(TRUE)) {
-
-                    String response = " \n\nRight\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
-
-                    EditMessageText editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
+                    editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
 
                     this.sendMessage(chatId, response);
@@ -235,9 +243,9 @@ public class BotService extends TelegramLongPollingBot {
                 } else if (data.contains(FALSE)) {
 
                     String id = data.substring(data.indexOf(" ") + 1);
-                    String response = " \n\nWrong\uD83E\uDD14";
+                    response = " \n\nWrong\uD83E\uDD14";
 
-                    EditMessageText editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
+                    editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
 
                     this.sendMessage(chatId, response);
@@ -252,6 +260,97 @@ public class BotService extends TelegramLongPollingBot {
                     } catch (IllegalArgumentException e){
                         logger.error("Не удалось получить Question из базы: {}", e.getMessage());
                     }
+
+                }
+
+                switch (data){
+                    case "A1":
+
+                        user = userService.updateLevel(chatId,
+                                Level.A1);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    case "A2":
+
+                        user = userService.updateLevel(chatId, Level.A2);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    case "B1":
+
+                        user = userService.updateLevel(chatId, Level.B1);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    case "B2":
+
+                        user = userService.updateLevel(chatId, Level.B2);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    case "C1":
+
+                        user = userService.updateLevel(chatId, Level.C1);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    case "C2":
+
+                        user = userService.updateLevel(chatId, Level.C2);
+                        userLevel = user.getLevel().toString();
+
+                        response = "Your English level has been changed to " + userLevel;
+
+                        editMessageText = messageUtil.changeMessage(chatId, response, messageId);
+                        this.executeMessage(editMessageText, chatId);
+
+                        logger.info("User {} chose the level: {}", userName, userLevel);
+
+                        break;
+
+                    default:
+                        break;
 
                 }
 
@@ -375,7 +474,7 @@ public class BotService extends TelegramLongPollingBot {
         try{
             execute(message);
         } catch (TelegramApiException e) {
-            logger.error("Failed to send message to chat {}", chatId);
+            logger.error("Failed to send message to chat {}: ", chatId, e);
         }
     }
 

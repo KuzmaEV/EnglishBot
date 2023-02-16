@@ -14,6 +14,9 @@ public class Question {
 
     private String description;
 
+    @Enumerated(value = EnumType.STRING)
+    private Level level;
+
     @OneToMany
     @JoinColumn(name = "question_id", referencedColumnName = "id")
     private List<PossibleAnswer> possibleAnswers;
@@ -21,10 +24,11 @@ public class Question {
     public Question() {
     }
 
-    public Question(long id, String question, String description, List<PossibleAnswer> possibleAnswers) {
+    public Question(long id, String question, String description, Level level, List<PossibleAnswer> possibleAnswers) {
         this.id = id;
         this.question = question;
         this.description = description;
+        this.level = level;
         this.possibleAnswers = possibleAnswers;
     }
 
@@ -56,12 +60,21 @@ public class Question {
         this.possibleAnswers = possibleAnswers;
     }
 
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
     @Override
     public String toString() {
         return "Question{" +
                 "id=" + id +
                 ", question='" + question + '\'' +
                 ", description='" + description + '\'' +
+                ", level=" + level +
                 ", possibleAnswers=" + possibleAnswers +
                 '}';
     }

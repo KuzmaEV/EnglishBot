@@ -1,6 +1,7 @@
 package by.testing.in.english.bot.englishBot.services;
 
 
+import by.testing.in.english.bot.englishBot.model.Level;
 import by.testing.in.english.bot.englishBot.model.Role;
 import by.testing.in.english.bot.englishBot.model.Status;
 import by.testing.in.english.bot.englishBot.model.User;
@@ -47,6 +48,7 @@ public class UserService implements IUserService {
             user.setRegisteredAt(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
             user.setRole(Role.USER);
             user.setStatus(Status.ACTIVATED);
+            user.setLevel(Level.A1);
 
             this.repository.save(user);
 
@@ -65,7 +67,8 @@ public class UserService implements IUserService {
 
     }
 
-    public User read(Long chatId){
+    @Override
+    public User get(Long chatId){
         if (chatId == null){
             logger.error("chatId is null");
             throw new IllegalArgumentException("chatId is null");
@@ -81,15 +84,29 @@ public class UserService implements IUserService {
 
     }
 
-    public List<User> read(){
+    @Override
+    public List<User> get(){
         return this.repository.findAll();
     }
 
 
+    @Override
+    @Transactional
+    public User updateLevel(Long chatId, Level level) {
+
+        User user = this.get(chatId);
+
+        user.setLevel(level);
+
+        return this.repository.save(user);
+    }
+
+
+    @Override
     @Transactional
     public void deactivate(Long chatId){
 
-        User user = this.read(chatId);
+        User user = this.get(chatId);
         user.setStatus(Status.DEACTIVATED);
 
         this.repository.save(user);
