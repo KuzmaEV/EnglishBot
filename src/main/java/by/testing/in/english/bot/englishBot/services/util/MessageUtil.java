@@ -35,40 +35,17 @@ public class MessageUtil {
 
         Long chatId = userMessage.getChatId();
         String firstName = userMessage.getChat().getFirstName();
-        String textToSend = "Hello " + firstName + "!\n Здесь должно быть приветствие и описание...";
+        String textToSend = "Hello " + firstName + "!\n " +
+                "Нажимай на кнопку \"❔Question❓\" и получи вопрос с вариантами ответа.\n" +
+                "Если слишком просто - нажимай \"⚙️Setting\" и выбирай уровень сложности.\n\n" +
+                "Все команды можно посмотреть тут /help или кнопка \"ℹ️Help\"";
 
 
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
 
-//        InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();//Делаем кнопки под сообщением
-//        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-//        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-//
-//        InlineKeyboardButton yesButton = new InlineKeyboardButton();
-//        yesButton.setText("Yes");
-//        yesButton.setCallbackData(YES_BUTTON);
-//
-//        InlineKeyboardButton noButton = new InlineKeyboardButton();
-//        noButton.setText("No");
-//        noButton.setCallbackData(NO_BUTTON);
-//
-//
-//        rowInLine.add(yesButton);
-//        rowInLine.add(noButton);
-//
-//        rowsInLine.add(rowInLine);
-//
-//        inlineMarkup.setKeyboard(rowsInLine);
 
-//        message.setReplyMarkup(inlineMarkup);
-
-
-
-        /////
-        //////////////
-        //////////////////////////////
 
         ReplyKeyboardMarkup replyMarkup = new ReplyKeyboardMarkup(); //делаем свою клавиатуру
         List<KeyboardRow> keyboardRows = new ArrayList<>();
@@ -88,9 +65,7 @@ public class MessageUtil {
 
         message.setReplyMarkup(replyMarkup);//Добавляем кнопки в сообщение
 
-        ////////////////
-        ////////////
-        /////
+
 
         this.userService.create(userMessage);//Save user to db
 
@@ -112,7 +87,6 @@ public class MessageUtil {
 
         InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();//Делаем кнопки под сообщением
         List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-//        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
 
         /////////////////
 
@@ -134,28 +108,6 @@ public class MessageUtil {
 
         ////////////////////
 
-//        InlineKeyboardButton possible1 = new InlineKeyboardButton();
-//        PossibleAnswer possibleAnswer1 = possibleAnswers.get(0);
-//        possible1.setText( possibleAnswer1.getAnswer().getAnswer() );
-//        possible1.setCallbackData(String.valueOf(possibleAnswer1.isCorrect()));
-//
-//        InlineKeyboardButton possible2 = new InlineKeyboardButton();
-//        possible2.setText( possibleAnswers.get(1).getAnswer().getAnswer() );
-//        possible2.setCallbackData(NO_BUTTON);
-//
-//        InlineKeyboardButton possible3 = new InlineKeyboardButton();
-//        possible3.setText( possibleAnswers.get(2).getAnswer().getAnswer() );
-//        possible3.setCallbackData(NO_BUTTON);
-//
-//        InlineKeyboardButton possible4 = new InlineKeyboardButton();
-//        possible4.setText( possibleAnswers.get(3).getAnswer().getAnswer() );
-//        possible4.setCallbackData(NO_BUTTON);
-//
-//
-//        rowInLine.add(possible1);
-//        rowInLine.add(possible4);
-//
-//        rowsInLine.add(rowInLine);
 
         inlineMarkup.setKeyboard(rowsInLine);
 

@@ -36,13 +36,15 @@ public class BotService extends TelegramLongPollingBot {
     private static final String HELP_MESSAGE = "Выбери команду которая тебе подходить:\n\n" +
             "/start - начало работы бота \n\n" +
             "/go - получить вопрос\n\n" +
-            "/setting - настроить уровень сложгости теста";
-
-    private static final String HELP_MESSAGE_ADMIN = "Выбери команду которая тебе подходить:\n\n" +
-            "/start - начало работы бота \n\n" +
-            "/go - получить вопрос\n\n" +
             "/setting - настроить уровень сложгости теста\n\n" +
-            "/send - отправить сообщение всем пользователям бота\n\n" +
+            "/disable - отключить бот";
+
+    private static final String HELP_MESSAGE_ADMIN =
+//            "Выбери команду которая тебе подходить:\n\n" +
+//            "/start - начало работы бота \n\n" +
+//            "/go - получить вопрос\n\n" +
+//            "/setting - настроить уровень сложгости теста\n\n" +
+            "\n\n/send - отправить сообщение всем пользователям бота\n\n" +
             "/add_question - добавить новый вопрос\n\n" +
             " \uD83D\uDC47⬇️Pattern⬇️\uD83D\uDC47";
 
@@ -94,6 +96,14 @@ public class BotService extends TelegramLongPollingBot {
 
                     sendMessage(chatId,
                             "Для начала работы с ботам нажмите /start");
+                    return;
+                }
+
+            if (sender.getStatus().equals(Status.DEACTIVATED)){
+
+                    sendMessage(chatId,
+                            "Бот отключен. Для начала работы с ботам нажмите /start");
+
                     return;
                 }
 
@@ -195,13 +205,21 @@ public class BotService extends TelegramLongPollingBot {
 
                     if (user.getRole().equals(Role.BOSS) || user.getRole().equals(Role.ADMIN)){
 
-                        sendMessage(chatId, HELP_MESSAGE_ADMIN);
+                        sendMessage(chatId, HELP_MESSAGE + HELP_MESSAGE_ADMIN);
                         sendMessage(chatId, ADD_QUESTION_PATTERN);
 
                         break;
                     }
 
                     sendMessage(chatId, HELP_MESSAGE);
+
+                    break;
+
+
+                case "/disable":
+
+                    this.userService.deactivate(chatId);
+                    this.sendMessage(chatId, "Bot disabled");
 
                     break;
 
@@ -232,7 +250,7 @@ public class BotService extends TelegramLongPollingBot {
 
             if (data.contains(TRUE)) {
 
-                    response = " \n\nRight\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
+                    response = " \n\nRight✅";
 
                     editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
@@ -243,7 +261,7 @@ public class BotService extends TelegramLongPollingBot {
                 } else if (data.contains(FALSE)) {
 
                     String id = data.substring(data.indexOf(" ") + 1);
-                    response = " \n\nWrong\uD83E\uDD14";
+                    response = " \n\nWrong❌";
 
                     editMessageText = messageUtil.changeMessage(chatId, textMessage, messageId);
                     this.executeMessage(editMessageText, chatId);
@@ -253,7 +271,7 @@ public class BotService extends TelegramLongPollingBot {
                     try {
                         Question question = this.questionService.get(Long.parseLong(id));
 
-                        this.sendMessage(chatId, "\uD83E\uDDD0 " + question.getDescription());
+                        this.sendMessage(chatId, "ℹ️ " + question.getDescription());
 
                     } catch (NumberFormatException e) {
                         logger.error("Не удалось получить ид Question: {}", e.getMessage());
@@ -353,7 +371,6 @@ public class BotService extends TelegramLongPollingBot {
                         break;
 
                 }
-
         }
 
     }
@@ -366,108 +383,9 @@ public class BotService extends TelegramLongPollingBot {
         message.setText(textToSend);
 
 
-//        ReplyKeyboardMarkup replyMarkup = new ReplyKeyboardMarkup(); //делаем свою клавиатуру
-//        List<KeyboardRow> keyboardRows = new ArrayList<>();
-//
-//        KeyboardRow row = new KeyboardRow();//первый ряд кнопак
-//        row.add("\uD83D\uDCE5Add task");
-//        row.add("\uD83D\uDCDATask");
-//
-//        KeyboardRow row2 = new KeyboardRow();//первый ряд кнопак
-//        row2.add("\uD83D\uDCCAStatistics");
-//        row2.add("⚙️Setting");
-//
-//        keyboardRows.add(row);//добавили ряд кнопока в список кнопак
-//        keyboardRows.add(row2);
-//
-//        replyMarkup.setKeyboard(keyboardRows);
-//
-//        message.setReplyMarkup(replyMarkup);//Добавляем кнопки в сообщение
-
-
-
         this.executeMessage(message, chatId);
-
     }
-//
-//    private void sendMessageStart(long chatId, String textToSend){
-//
-//        SendMessage message = new SendMessage();
-//        message.setChatId(String.valueOf(chatId));
-//        message.setText(textToSend);
-//
-//        InlineKeyboardMarkup inlineMarkup = new InlineKeyboardMarkup();//Делаем кнопки под сообщением
-//        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-//        List<InlineKeyboardButton> rowInLine = new ArrayList<>();
-//
-//        InlineKeyboardButton yesButton = new InlineKeyboardButton();
-//        yesButton.setText("Yes");
-//        yesButton.setCallbackData(YES_BUTTON);
-//
-//        InlineKeyboardButton noButton = new InlineKeyboardButton();
-//        noButton.setText("No");
-//        noButton.setCallbackData(NO_BUTTON);
-//
-//
-//        rowInLine.add(yesButton);
-//        rowInLine.add(noButton);
-//
-//        rowsInLine.add(rowInLine);
-//
-//        inlineMarkup.setKeyboard(rowsInLine);
-//
-//
-//        /////
-//        //////////////
-//        //////////////////////////////
-//
-//        ReplyKeyboardMarkup replyMarkup = new ReplyKeyboardMarkup(); //делаем свою клавиатуру
-//        List<KeyboardRow> keyboardRows = new ArrayList<>();
-//
-//        KeyboardRow row = new KeyboardRow();//первый ряд кнопак
-//        row.add("\uD83D\uDCE5Add task");
-//        row.add("\uD83D\uDCDATask");
-//
-//        KeyboardRow row2 = new KeyboardRow();//первый ряд кнопак
-//        row2.add("\uD83D\uDCCAStatistics");
-//        row2.add("⚙️Setting");
-//
-//        keyboardRows.add(row);//добавили ряд кнопока в список кнопак
-//        keyboardRows.add(row2);
-//
-//        replyMarkup.setKeyboard(keyboardRows);
-//
-//        message.setReplyMarkup(replyMarkup);//Добавляем кнопки в сообщение
-//
-//        ////////////////
-//        ////////////
-//        /////
-//
-//
-//
-//        message.setReplyMarkup(inlineMarkup);
-//
-//        this.executeMessage(message, chatId);
-//
-//    }
-//
-//    private void sendMessageForQuestion(long chatId){
-//
-//        hh
-//
-//    }
-//
-//
-//    private void changeMessage(long chatId, String text, Integer messageId){//изменяет сообщение
-//
-//        EditMessageText message = new EditMessageText();
-//        message.setChatId(String.valueOf(chatId));
-//        message.setText(text);
-//        message.setMessageId(messageId);
-//
-//        this.executeMessage(message, chatId);
-//
-//    }
+
 
     private <T extends Serializable, Method extends BotApiMethod<T>> void executeMessage(Method message, long chatId){
 
